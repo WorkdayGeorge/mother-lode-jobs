@@ -1,4 +1,4 @@
-# Mother Lode Jobs
+# Mother Lode Careers
 
 A free, public job board for Calaveras, Amador and Tuolumne counties, with
 optional personal matching for job seekers who sign up.

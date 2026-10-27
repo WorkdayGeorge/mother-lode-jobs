@@ -38,7 +38,7 @@ SIGNUP_MODES = ("approval", "open", "closed")
 
 @dataclass(frozen=True)
 class Settings:
-    site_name: str = "Mother Lode Jobs"
+    site_name: str = "Mother Lode Careers"
     site_tagline: str = "Local jobs in Calaveras, Amador & Tuolumne counties"
     public_base_url: str = "http://127.0.0.1:8000"
     environment: str = "development"  # development | production | test
@@ -66,7 +66,7 @@ class Settings:
     usajobs_api_key: str | None = None
     usajobs_user_agent: str | None = None
 
-    http_user_agent: str = "MotherLodeJobsBot/1.0 (+community job board)"
+    http_user_agent: str = "MotherLodeCareersBot/1.0 (+community job board)"
     closed_job_grace_days: int = 30
 
     @property
