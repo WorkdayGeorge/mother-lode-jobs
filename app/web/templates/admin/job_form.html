@@ -1,0 +1,25 @@
+{% extends "admin/_base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head"><h1>Post a job by hand</h1>
+    <p>For employers without a careers page we can read. The job comes down on its closing date.</p></div>
+  <form method="post" action="/admin/jobs/new" class="panel plain">
+    {{ csrf_field(csrf) }}
+    {% if sub %}<input type="hidden" name="submission_id" value="{{ sub.id }}">{% endif %}
+    <div class="field"><label for="title">Job title</label><input id="title" type="text" name="title" value="{{ sub.job_title if sub else '' }}" required></div>
+    <div class="field-row">
+      <div class="field"><label for="employer">Employer</label><input id="employer" type="text" name="employer" value="{{ sub.employer if sub else '' }}" required></div>
+      <div class="field"><label for="town">Town</label><select id="town" name="town" required><option value="">Choose</option>{% for t in towns %}<option {% if sub and sub.town == t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="pay">Pay</label><input id="pay" type="text" name="pay" value="{{ sub.pay if sub and sub.pay else '' }}"></div>
+      <div class="field"><label for="employment_type">Hours</label><select id="employment_type" name="employment_type"><option value="">Not stated</option>{% for t in types %}<option>{{ t }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="closes_on">Closes</label><input id="closes_on" type="date" name="closes_on" value="{{ (sub.closes_on if sub and sub.closes_on else default_close).isoformat() }}" required></div>
+    </div>
+    <div class="field"><label for="apply_url">How to apply <span class="hint">A link or an email address</span></label><input id="apply_url" type="text" name="apply_url" value="{{ sub.url if sub and sub.url else (sub.contact_email if sub else '') }}" required></div>
+    <div class="field"><label for="description">Description</label><textarea id="description" name="description" rows="10" required>{{ sub.description if sub and sub.description else '' }}</textarea></div>
+    <button class="btn" type="submit">Post job</button>
+  </form>
+</div>
+{% endblock %}

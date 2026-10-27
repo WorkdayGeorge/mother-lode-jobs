@@ -1,0 +1,8 @@
+New jobs matching your alert{% if sub.keywords %} for "{{ sub.keywords }}"{% endif %}:
+{% for job in jobs %}
+- {{ job.title }} — {{ job.employer }}, {% if job.is_remote %}Remote{% else %}{{ job.town or job.county }}{% endif %}{% if job.salary_text %}, {{ job.salary_text }}{% endif %}
+  {{ base_url }}/jobs/{{ job.id }}/{{ job.slug }}
+{% endfor %}{% if more %}
+...and {{ more }} more: {{ base_url }}/jobs
+{% endif %}
+Unsubscribe: {{ base_url }}/alerts/unsubscribe/{{ sub.token }}

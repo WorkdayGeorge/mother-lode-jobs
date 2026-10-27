@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Privacy — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head">
+    <h1>Privacy</h1>
+    <p>You can browse every job without giving us anything. Here's what we keep when you choose to give it.</p>
+    <h2>Job alerts</h2>
+    <p>Your email address and the filters you chose. We use them only to send the alert. Unsubscribing stops the emails immediately.</p>
+    <h2>Accounts</h2>
+    <p>Your name, email, a scrambled copy of your password, the profile you fill in, and the jobs you save. If you upload a resume, we read the text out of it to match jobs and then throw the file away; only the text is kept.</p>
+    <p>If detailed reviews are turned on, a job description and your profile are sent to an AI service to write the review. They aren't used for anything else.</p>
+    <h2>Deleting your data</h2>
+    <p>You can delete your account at any time from <a href="/me/account">your account page</a>. That removes your profile, resume text, matches and saved jobs right away.</p>
+    <p>We never sell your information or share it with employers. You decide when and where to apply.</p>
+  </div>
+</div>
+{% endblock %}

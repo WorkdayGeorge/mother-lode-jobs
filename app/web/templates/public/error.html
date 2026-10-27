@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ message }} — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head">
+    <h1>{{ message }}</h1>
+    {% if code == 404 %}<p>The job may have been taken down by the employer, or the link was mistyped.</p>{% endif %}
+    <div class="actions"><a class="btn" href="/jobs">Browse jobs</a><a class="btn secondary" href="/">Home</a></div>
+  </div>
+</div>
+{% endblock %}

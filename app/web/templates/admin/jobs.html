@@ -1,0 +1,22 @@
+{% extends "admin/_base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head section-head"><h1>Jobs</h1><a class="btn" href="/admin/jobs/new">Post a job by hand</a></div>
+  <form method="get" class="field" style="max-width:420px"><label for="q">Find a job</label><input id="q" type="search" name="q" value="{{ q }}" placeholder="Title or employer"></form>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Job</th><th>Where</th><th>Kind</th><th>Status</th><th>First seen</th><th></th></tr></thead>
+    <tbody>{% for j in rows %}
+      <tr>
+        <td><a href="/jobs/{{ j.id }}/{{ j.slug }}">{{ j.title }}</a><br><small>{{ j.employer }}</small></td>
+        <td>{{ j.town or j.county or ('Remote' if j.is_remote else '') }}</td>
+        <td><small>{{ j.category }}</small></td>
+        <td>{{ j.status }}{% if j.duplicate_of_id %} <small class="muted">(duplicate)</small>{% endif %}</td>
+        <td>{{ j.first_seen_at|ago }}</td>
+        <td><form method="post" action="/admin/jobs/{{ j.id }}">{{ csrf_field(csrf) }}
+          {% if j.status == 'open' %}<button class="btn quiet small" name="action" value="hide">Hide</button>{% else %}<button class="btn quiet small" name="action" value="unhide">Show</button>{% endif %}
+        </form></td>
+      </tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

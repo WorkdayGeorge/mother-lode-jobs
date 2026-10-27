@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head">
+    <h1>{{ title }}</h1>
+    <p>{{ body }}</p>
+    <p><a href="/jobs">Browse jobs</a></p>
+  </div>
+</div>
+{% endblock %}

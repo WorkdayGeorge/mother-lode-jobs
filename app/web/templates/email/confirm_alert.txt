@@ -1,0 +1,5 @@
+Please confirm you'd like job alerts from {{ site_name }}{% if sub.keywords %} for "{{ sub.keywords }}"{% endif %}.
+
+Start my job alert: {{ base_url }}/alerts/confirm/{{ sub.token }}
+
+If you didn't ask for this, ignore this email and nothing will be sent.

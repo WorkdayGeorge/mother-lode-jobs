@@ -1,0 +1,5 @@
+Your listing for {{ sub.employer }} is now on {{ site_name }}:
+
+{{ link }}
+
+It comes down on its closing date. Reply to this email if anything needs changing.

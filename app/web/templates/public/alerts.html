@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field, honeypot %}
+{% block title %}Job alerts by email — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head">
+    <h1>Get new jobs by email</h1>
+    <p>Tell us what to watch for. We'll email you when matching jobs are posted. No account or password needed, and every email has a one-click unsubscribe.</p>
+  </div>
+  <form method="post" action="/alerts" class="panel plain">
+    {{ csrf_field(csrf) }}{{ honeypot() }}
+    <div class="field">
+      <label for="email">Your email</label>
+      <input id="email" type="email" name="email" required autocomplete="email">
+    </div>
+    <div class="field">
+      <label for="keywords">Words to look for <span class="hint">Optional. Separate with commas, e.g. "nurse, medical assistant". Leave blank for every new job.</span></label>
+      <input id="keywords" type="text" name="keywords" value="{{ filters.q }}">
+    </div>
+    <fieldset>
+      <legend>Where</legend>
+      <div class="checks">
+        {% for c in ALL_COUNTIES %}
+        <label><input type="checkbox" name="counties" value="{{ c }}" {% if filters.county_name == c or (not filters.county_name and c in PRIMARY_COUNTIES) %}checked{% endif %}> {{ c }}</label>
+        {% endfor %}
+        <label><input type="checkbox" name="include_remote" value="1" {% if filters.remote %}checked{% endif %}> Remote jobs open to Californians</label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Kinds of work <span class="hint">Leave all unchecked for every kind.</span></legend>
+      <div class="checks">
+        {% for name in CATEGORY_NAMES %}
+        <label><input type="checkbox" name="categories" value="{{ name }}" {% if filters.category == name %}checked{% endif %}> {{ name }}</label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>How often</legend>
+      <label class="check"><input type="radio" name="frequency" value="daily"> Every morning, when there's something new</label>
+      <label class="check"><input type="radio" name="frequency" value="weekly" checked> Once a week</label>
+    </fieldset>
+    <button class="btn" type="submit">Start my job alert</button>
+  </form>
+</div>
+{% endblock %}

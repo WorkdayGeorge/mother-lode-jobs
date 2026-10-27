@@ -1,0 +1,5 @@
+{% extends "email/_layout.html" %}{% block body %}
+<p>Hi {{ user.name.split(' ')[0] }}, please confirm this is your email address.</p>
+{% with label='Confirm my email' %}{% include "email/_button.html" %}{% endwith %}
+<p style="color:#56625b;font-size:14px">The link works for 48 hours. If you didn't sign up, ignore this email.</p>
+{% endblock %}

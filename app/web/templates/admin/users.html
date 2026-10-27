@@ -1,0 +1,46 @@
+{% extends "admin/_base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block content %}
+{% set labels = {'pending':'Waiting for approval','active':'Active','unverified':'Email not confirmed','denied':'Denied','suspended':'Suspended','all':'Everyone'} %}
+<div class="wrap">
+  <div class="page-head"><h1>People</h1>
+    <p class="muted">Sign-ups are {{ 'approved by an admin' if settings.signup_mode == 'approval' else ('approved automatically' if settings.signup_mode == 'open' else 'closed') }}. Change this with the SIGNUP_MODE setting.</p>
+  </div>
+  <nav class="tabs">
+    {% for s in ['pending','active','unverified','denied','suspended','all'] %}
+    <a href="/admin/users?status={{ s }}" {% if status == s %}aria-current="page"{% endif %}>{{ labels[s] }}{% if s != 'all' and counts.get(s) %} ({{ counts[s] }}){% endif %}</a>
+    {% endfor %}
+  </nav>
+  {% if rows %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Name</th><th>Signed up</th><th>Looking for</th><th>Profile</th><th></th></tr></thead>
+    <tbody>
+    {% for u in rows %}
+    <tr>
+      <td><strong>{{ u.name }}</strong>{% if u.is_admin %} <span class="tag">Admin</span>{% endif %}<br><small>{{ u.email }}</small></td>
+      <td>{{ u.created_at|ago }}{% if u.last_login_at %}<br><small class="muted">last in {{ u.last_login_at|ago }}</small>{% endif %}</td>
+      <td><small>{{ u.signup_note or '' }}</small></td>
+      <td><small>{% if u.profile and u.profile.is_complete %}Complete{% if u.profile.resume_text %}, resume{% endif %}{% else %}Not set up{% endif %}</small></td>
+      <td>
+        <form method="post" action="/admin/users/{{ u.id }}" class="actions" style="margin:0">
+          {{ csrf_field(csrf) }}
+          {% if u.status == 'pending' %}
+            <button class="btn small" name="action" value="approve">Approve</button>
+            <button class="btn secondary small" name="action" value="deny" data-confirm="Deny {{ u.name }}?">Deny</button>
+          {% elif u.status == 'active' %}
+            {% if not u.is_admin %}<button class="btn quiet small" name="action" value="make_admin" data-confirm="Give {{ u.name }} full admin access?">Make admin</button>{% elif u.id != user.id %}<button class="btn quiet small" name="action" value="remove_admin">Remove admin</button>{% endif %}
+            {% if u.id != user.id %}<button class="btn quiet small" name="action" value="suspend" data-confirm="Suspend {{ u.name }}? They'll be signed out.">Suspend</button>{% endif %}
+          {% elif u.status in ('denied', 'suspended') %}
+            <button class="btn secondary small" name="action" value="reactivate">Reactivate</button>
+          {% elif u.status == 'unverified' %}
+            <button class="btn quiet small" name="action" value="approve">Approve without email check</button>
+          {% endif %}
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}<p>Nobody here.</p>{% endif %}
+</div>
+{% endblock %}

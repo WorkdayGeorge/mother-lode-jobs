@@ -1,0 +1,5 @@
+<tr><td style="padding:12px 0;border-bottom:1px solid #d6ddd6">
+  <a href="{{ base_url }}/jobs/{{ job.id }}/{{ job.slug }}" style="color:#1d5c7c;font-weight:bold;font-size:16px">{{ job.title }}</a>{% if score is defined and score is not none %} <span style="color:#1f3a2e;font-weight:bold">· {{ score }}/100</span>{% endif %}<br>
+  <span style="color:#56625b;font-size:14px">{{ job.employer }} — {% if job.is_remote %}Remote{% else %}{{ job.town or job.county }}{% endif %}{% if job.salary_text %} — {{ job.salary_text }}{% endif %}</span>
+  {% if why %}<br><span style="font-size:14px">{{ why }}</span>{% endif %}
+</td></tr>

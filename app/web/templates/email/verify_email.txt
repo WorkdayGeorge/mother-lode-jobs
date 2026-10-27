@@ -1,0 +1,5 @@
+Hi {{ user.name.split(' ')[0] }}, please confirm this is your email address:
+
+{{ link }}
+
+The link works for 48 hours. If you didn't sign up, ignore this email.

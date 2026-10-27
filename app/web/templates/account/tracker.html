@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Saved & applied — {{ settings.site_name }}{% endblock %}
+{% block content %}
+{% set labels = {'saved':'Saved','applied':'Applied','interview':'Interviewing','offer':'Offer','hired':'Hired','not_selected':'Not selected','withdrawn':'Withdrew'} %}
+<div class="wrap">
+  <div class="page-head"><h1>Saved &amp; applied</h1></div>
+  {% include "account/_tabs.html" %}
+  {% if rows %}
+  {% for t in rows %}
+  <form class="panel plain" method="post" action="/me/jobs/{{ t.id }}">
+    {{ csrf_field(csrf) }}
+    <h3 class="job-title"><a href="/jobs/{{ t.job.id }}/{{ t.job.slug }}">{{ t.job.title }}</a>
+      {% if not t.job.is_open %}<span class="tag closed">No longer listed</span>{% endif %}</h3>
+    <div class="job-meta" style="margin-bottom:12px"><span class="employer">{{ t.job.employer }}</span><span>{{ t.job.town or t.job.county or 'Remote' }}</span>{% if t.job.closes_on %}<span>Apply by {{ t.job.closes_on|date }}</span>{% endif %}</div>
+    <div class="field-row">
+      <div class="field"><label for="s{{ t.id }}">Status</label>
+        <select id="s{{ t.id }}" name="status">{% for s in statuses %}<option value="{{ s }}" {% if t.status == s %}selected{% endif %}>{{ labels[s] }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="a{{ t.id }}">Applied on</label><input id="a{{ t.id }}" type="date" name="applied_on" value="{{ t.applied_on or '' }}"></div>
+      <div class="field"><label for="f{{ t.id }}">Follow up on</label><input id="f{{ t.id }}" type="date" name="follow_up_on" value="{{ t.follow_up_on or '' }}"></div>
+    </div>
+    <div class="field"><label for="n{{ t.id }}">Notes <span class="hint">Only you can see these</span></label><textarea id="n{{ t.id }}" name="notes" rows="2">{{ t.notes or '' }}</textarea></div>
+    <button class="btn secondary small" type="submit">Save changes</button>
+  </form>
+  {% endfor %}
+  {% else %}
+  <div class="panel">
+    <h2>Nothing saved yet</h2>
+    <p>Press “Save job” on any listing to keep track of it here, with dates and notes.</p>
+    <a class="btn" href="/me">See my matches</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

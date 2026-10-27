@@ -1,0 +1,5 @@
+{% extends "email/_layout.html" %}{% block body %}
+<p>Please confirm you'd like job alerts from {{ site_name }}{% if sub.keywords %} for “{{ sub.keywords }}”{% endif %}.</p>
+{% with link=base_url ~ '/alerts/confirm/' ~ sub.token, label='Yes, start my job alert' %}{% include "email/_button.html" %}{% endwith %}
+<p style="color:#56625b;font-size:14px">If you didn't ask for this, ignore this email and nothing will be sent.</p>
+{% endblock %}

@@ -1,0 +1,8 @@
+Hi {{ user.name.split(' ')[0] }}, here are new jobs that fit your profile:
+{% for m in matches %}
+- {{ m.job.title }} ({{ m.score }}/100) — {{ m.job.employer }}, {% if m.job.is_remote %}Remote{% else %}{{ m.job.town or m.job.county }}{% endif %}
+  {{ m.summary or '' }}
+  {{ base_url }}/jobs/{{ m.job.id }}/{{ m.job.slug }}
+{% endfor %}
+All your matches: {{ base_url }}/me
+Change how often you hear from us: {{ base_url }}/me/profile

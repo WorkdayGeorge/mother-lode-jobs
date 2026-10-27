@@ -1,0 +1,5 @@
+{% extends "email/_layout.html" %}{% block body %}
+<p>Thanks for sending {{ sub.employer }}'s {{ 'careers page' if sub.kind == 'careers_page' else 'job' }} to {{ site_name }}. We weren't able to list it:</p>
+<p style="border-left:3px solid #c99a2e;padding-left:12px">{{ note }}</p>
+<p>Reply to this email if you have questions.</p>
+{% endblock %}

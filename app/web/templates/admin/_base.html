@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Admin — {{ settings.site_name }}{% endblock %}
+{% block head %}<meta name="robots" content="noindex">{% endblock %}
+{% block subnav %}
+<nav class="admin-nav" aria-label="Admin">
+  <div class="wrap">
+    {% for href, label in [('/admin','Overview'),('/admin/sources','Sources'),('/admin/users','People'),('/admin/submissions','Submissions'),('/admin/jobs','Jobs'),('/admin/activity','Activity')] %}
+    <a href="{{ href }}" {% if path == href or (href != '/admin' and path.startswith(href)) %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </div>
+</nav>
+{% endblock %}

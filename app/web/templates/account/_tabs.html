@@ -1,0 +1,6 @@
+<nav class="tabs" aria-label="Your account">
+  <a href="/me" {% if path == '/me' %}aria-current="page"{% endif %}>Matches</a>
+  <a href="/me/jobs" {% if path == '/me/jobs' %}aria-current="page"{% endif %}>Saved &amp; applied</a>
+  <a href="/me/profile" {% if path == '/me/profile' %}aria-current="page"{% endif %}>My profile</a>
+  <a href="/me/account" {% if path == '/me/account' %}aria-current="page"{% endif %}>Account</a>
+</nav>

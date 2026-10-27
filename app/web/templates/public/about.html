@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}How this site works — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head">
+    <h1>How this site works</h1>
+    <p>{{ settings.site_name }} is a free job board for Calaveras, Amador and Tuolumne counties. Instead of waiting for employers to post here, we check their own job pages every 15 minutes and list what we find.</p>
+    <h2>Where the jobs come from</h2>
+    <p>County and city governments, school districts, the state and federal government, hospitals, and local businesses. When a job comes down from the employer's site, it comes down here too. You always apply on the employer's own site.</p>
+    <ul class="small-list">{% for s in sources %}<li>{{ s.name }}</li>{% endfor %}</ul>
+    <h2>Personal matches</h2>
+    <p>With a free account you can tell us what kind of work you want, what you're good at, and upload a resume. We compare each new opening with your profile and show you the best fits first, with a short note on what lines up and what might be missing.</p>
+    <h2>Questions or corrections</h2>
+    <p>If a listing is wrong or out of date, or you'd like your business added, <a href="/for-employers">let us know here</a>.</p>
+  </div>
+</div>
+{% endblock %}

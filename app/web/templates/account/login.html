@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Sign in — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head form-card">
+    <h1>Sign in</h1>
+    {% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/login">
+      {{ csrf_field(csrf) }}
+      <input type="hidden" name="next" value="{{ next }}">
+      <div class="field"><label for="email">Email</label><input id="email" type="email" name="email" value="{{ email or '' }}" required autocomplete="email"></div>
+      <div class="field"><label for="password">Password</label><input id="password" type="password" name="password" required autocomplete="current-password"></div>
+      <div class="actions"><button class="btn" type="submit">Sign in</button><a href="/forgot">Forgot your password?</a></div>
+    </form>
+    {% if settings.signup_mode != 'closed' %}<p style="margin-top:22px">New here? <a href="/signup">Create a free account</a></p>{% endif %}
+  </div>
+</div>
+{% endblock %}

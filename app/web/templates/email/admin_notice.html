@@ -1,0 +1,4 @@
+{% extends "email/_layout.html" %}{% block body %}
+<p>{{ message }}</p>
+{% with label='Open admin' %}{% include "email/_button.html" %}{% endwith %}
+{% endblock %}

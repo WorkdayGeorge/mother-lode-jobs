@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ settings.site_name }} — {{ settings.site_tagline }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}Find local jobs in Calaveras, Amador and Tuolumne counties. Openings from county and city governments, schools, hospitals and local employers, checked every 15 minutes.{% endblock %}">
+  {% block head %}{% endblock %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/static/site.css?v=1">
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <script src="/static/site.js?v=1" defer></script>
+</head>
+{% from "_macros.html" import ridge %}
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="wrap bar">
+    <a class="brand" href="/">
+      <svg class="brand-mark" viewBox="0 0 34 34" aria-hidden="true">
+        <circle cx="22" cy="11" r="6" fill="#c99a2e"/>
+        <path d="M0 30 L9 15 L15 23 L21 13 L34 30 Z" fill="#1f3a2e"/>
+      </svg>
+      <span><span class="brand-name">{{ settings.site_name }}</span>
+      <span class="brand-sub">Calaveras, Amador &amp; Tuolumne counties</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="/jobs" {% if path.startswith('/jobs') %}aria-current="page"{% endif %}>Find jobs</a>
+      <a href="/employers" {% if path.startswith('/employers') %}aria-current="page"{% endif %}>Employers</a>
+      <a href="/alerts" {% if path.startswith('/alerts') %}aria-current="page"{% endif %}>Job alerts</a>
+      <a href="/for-employers" {% if path.startswith('/for-employers') %}aria-current="page"{% endif %}>Post a job</a>
+      {% if user %}
+        {% if user.is_admin and user.is_active %}<a href="/admin" {% if path.startswith('/admin') %}aria-current="page"{% endif %}>Admin</a>{% endif %}
+        <a href="/me" {% if path.startswith('/me') %}aria-current="page"{% endif %}>My jobs</a>
+      {% else %}
+        <a href="/login">Sign in</a>
+      {% endif %}
+    </nav>
+  </div>
+  {% block ridge %}{{ ridge() }}{% endblock %}
+</header>
+{% block subnav %}{% endblock %}
+<main id="main">
+  {% if flashes %}<div class="wrap">{% for f in flashes %}<div class="flash {{ 'error' if f.k == 'error' }}" role="status">{{ f.m }}</div>{% endfor %}</div>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="site-foot">
+  <div class="wrap foot-grid">
+    <div>
+      <h2>{{ settings.site_name }}</h2>
+      <p>A free, local job board for the Mother Lode. We link to each employer's own application, so you always apply directly.</p>
+    </div>
+    <div>
+      <h2>Looking for work</h2>
+      <ul>
+        <li><a href="/jobs">Browse all jobs</a></li>
+        <li><a href="/alerts">Get new jobs by email</a></li>
+        <li><a href="/signup">Get personal matches</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Hiring</h2>
+      <ul>
+        <li><a href="/for-employers">Add your jobs</a></li>
+        <li><a href="/employers">Employers we list</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>About</h2>
+      <ul>
+        <li><a href="/about">How this site works</a></li>
+        <li><a href="/privacy">Privacy</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

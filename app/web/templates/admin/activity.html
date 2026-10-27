@@ -1,0 +1,21 @@
+{% extends "admin/_base.html" %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head"><h1>Activity</h1></div>
+  <h2>Recent checks</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Started</th><th class="num">Sources OK</th><th class="num">Failed</th><th class="num">New jobs</th><th class="num">Closed</th><th class="num">Matched</th><th class="num">Alerts sent</th></tr></thead>
+    <tbody>{% for r in runs %}{% set s = r.summary or {} %}
+      <tr><td>{{ r.started_at.strftime('%b %-d, %-I:%M %p') }} UTC{% if not r.finished_at %} <small>(running)</small>{% endif %}</td>
+        <td class="num">{{ s.get('ok', '') }}</td><td class="num">{{ s.get('failed', '') }}</td><td class="num">{{ s.get('new_jobs', '') }}</td>
+        <td class="num">{{ s.get('closed_jobs', '') }}</td><td class="num">{{ (s.get('matching') or {}).get('scored', '') }}</td>
+        <td class="num">{% if s.get('alerts') %}{{ s.alerts.public + s.alerts.personal }}{% endif %}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  <h2 style="margin-top:28px">Admin and account events</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>When</th><th>What</th><th>About</th></tr></thead>
+    <tbody>{% for e in events %}<tr><td>{{ e.at|ago }}</td><td>{{ e.action.replace('_', ' ') }}</td><td><small>{{ e.target or '' }}</small></td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

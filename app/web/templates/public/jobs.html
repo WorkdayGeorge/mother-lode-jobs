@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% from "_macros.html" import job_row %}
+{% block title %}{{ heading }} — {{ settings.site_name }}{% endblock %}
+{% block description %}{{ total }} {{ heading|lower }} in the Mother Lode. Updated every 15 minutes from local employers' own job pages.{% endblock %}
+{% block content %}
+<div class="wrap results-layout">
+  <div>
+    <button class="btn secondary mobile-filter-toggle" type="button" data-toggle="filters" aria-expanded="false" aria-controls="filters">Filter jobs</button>
+    <div class="filters-wrap" id="filters">
+      <form class="filters" action="/jobs" method="get">
+        <div class="field">
+          <label for="q">Search</label>
+          <input id="q" type="search" name="q" value="{{ filters.q }}" placeholder="Title, skill or employer">
+        </div>
+        {% for key in ('county','town','category','type','posted','employer') %}{% if filters[key] %}<input type="hidden" name="{{ key }}" value="{{ filters[key] }}">{% endif %}{% endfor %}
+        {% if filters.remote %}<input type="hidden" name="remote" value="1">{% endif %}
+        <button class="btn small" type="submit">Search</button>
+      </form>
+
+      <nav class="filters" aria-label="Filters">
+        <details open>
+          <summary>County</summary>
+          {% for c in ALL_COUNTIES if facets.county.get(c) %}
+          <a class="opt" href="/jobs?{{ filters.query_string(county=county_slugs[c], town='', page=1) }}" {% if filters.county_name == c %}aria-current="true"{% endif %}>
+            <span>{{ c }}</span><span class="n">{{ facets.county[c] }}</span></a>
+          {% endfor %}
+        </details>
+        <details {% if filters.category %}open{% endif %}>
+          <summary>Kind of work</summary>
+          {% for name in CATEGORY_NAMES if facets.category.get(name) %}
+          <a class="opt" href="/jobs?{{ filters.query_string(category=name, page=1) }}" {% if filters.category == name %}aria-current="true"{% endif %}>
+            <span>{{ name }}</span><span class="n">{{ facets.category[name] }}</span></a>
+          {% endfor %}
+        </details>
+        <details {% if filters.type %}open{% endif %}>
+          <summary>Hours</summary>
+          {% for t in EMPLOYMENT_TYPES if facets.type.get(t) %}
+          <a class="opt" href="/jobs?{{ filters.query_string(type=t, page=1) }}" {% if filters.type == t %}aria-current="true"{% endif %}>
+            <span>{{ t }}</span><span class="n">{{ facets.type[t] }}</span></a>
+          {% endfor %}
+        </details>
+        <details {% if filters.posted %}open{% endif %}>
+          <summary>Posted</summary>
+          {% for value, label in posted_choices.items() %}
+          <a class="opt" href="/jobs?{{ filters.query_string(posted=value, page=1) }}" {% if filters.posted == value %}aria-current="true"{% endif %}><span>{{ label }}</span></a>
+          {% endfor %}
+        </details>
+        <details {% if filters.remote %}open{% endif %}>
+          <summary>Remote work</summary>
+          {% if filters.remote %}
+          <a class="opt" href="/jobs?{{ filters.query_string(remote=False, page=1) }}"><span>Hide remote jobs</span></a>
+          {% else %}
+          <a class="opt" href="/jobs?{{ filters.query_string(remote=True, page=1) }}"><span>Also show remote jobs open to Californians</span></a>
+          {% endif %}
+        </details>
+      </nav>
+    </div>
+  </div>
+
+  <div>
+    <h1>{{ heading }}</h1>
+    {% if filters.active_labels %}
+    <div class="chips">
+      {% for label, qs in filters.active_labels %}<a class="chip" href="/jobs?{{ qs }}" aria-label="Remove filter {{ label }}">{{ label }}</a>{% endfor %}
+      <a href="/jobs">Clear all</a>
+    </div>
+    {% endif %}
+    <div class="result-tools">
+      <p class="muted" style="margin:0">{{ total }} job{{ '' if total == 1 else 's' }}, newest first</p>
+      <a class="btn quiet small" href="/alerts?{{ filters.query_string(page=1) }}">Email me new jobs like these</a>
+    </div>
+
+    {% if jobs %}
+    <ul class="job-list" style="margin-top:12px">{% for job in jobs %}{{ job_row(job, job.id in saved_ids) }}{% endfor %}</ul>
+    {% if pages > 1 %}
+    <nav class="pager" aria-label="Pages">
+      {% if filters.page > 1 %}<a class="btn secondary small" href="/jobs?{{ filters.query_string(page=filters.page-1) }}">Previous</a>{% endif %}
+      <span class="muted">Page {{ filters.page }} of {{ pages }}</span>
+      {% if filters.page < pages %}<a class="btn secondary small" href="/jobs?{{ filters.query_string(page=filters.page+1) }}">Next</a>{% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="panel" style="margin-top:16px">
+      <h2>No jobs match right now</h2>
+      <p>Try fewer words or remove a filter. New jobs come in all the time — set up an alert and we'll email you when one matches.</p>
+      <a class="btn" href="/alerts?{{ filters.query_string(page=1) }}">Email me when one is posted</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

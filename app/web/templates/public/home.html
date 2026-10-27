@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "_macros.html" import job_row, ridge %}
+{% block ridge %}{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="wrap">
+    <h1>Find work close to home in the Mother Lode</h1>
+    <p class="lede">Every opening from local governments, schools, hospitals and businesses across Calaveras, Amador and Tuolumne counties, in one place.</p>
+    <form class="searchbar" action="/jobs" method="get" role="search">
+      <label class="visually-hidden" for="q">Job title, skill or employer</label>
+      <input id="q" type="search" name="q" placeholder="Job title, skill or employer">
+      <label class="visually-hidden" for="where">Where</label>
+      <select id="where" name="county">
+        <option value="">All three counties</option>
+        {% for c in PRIMARY_COUNTIES %}<option value="{{ county_slugs[c] }}">{{ c }}</option>{% endfor %}
+      </select>
+      <button class="btn" type="submit">Search jobs</button>
+    </form>
+    <p class="trust">
+      <strong>{{ stats.open_jobs }} open jobs</strong> from {{ stats.employers }} local employers{% if stats.new_week %}, {{ stats.new_week }} added this week{% endif %}.
+      {% if stats.checked %}Last checked {{ stats.checked|ago }}.{% endif %}
+    </p>
+  </div>
+</section>
+<div class="band-ridge">{{ ridge() }}</div>
+
+<div class="wrap">
+  <div class="county-strip">
+    {% for c in PRIMARY_COUNTIES %}
+    <a class="county" href="/jobs?county={{ county_slugs[c] }}">
+      <span class="name">{{ c|county_short }}</span>
+      <span class="count">{{ by_county.get(c, 0) }} open jobs</span>
+      <div class="towns">
+        {% set ns = namespace(n=0) %}{% for t, county in TOWNS.items() if county == c and ns.n < 4 %}{% set ns.n = ns.n + 1 %}{{ t }}{% if ns.n < 4 %}, {% endif %}{% endfor %}…
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <div class="split section">
+    <section>
+      <div class="section-head">
+        <h2>Newest jobs</h2>
+        <a href="/jobs">See all {{ stats.open_jobs }}</a>
+      </div>
+      {% if latest %}
+      <ul class="job-list">{% for job in latest %}{{ job_row(job) }}{% endfor %}</ul>
+      {% else %}
+      <p>No jobs are listed yet. The board fills in after the first check of local employers.</p>
+      {% endif %}
+    </section>
+    <aside>
+      <h2>Browse by kind of work</h2>
+      <ul class="cat-list">
+        {% for name in CATEGORY_NAMES if by_category.get(name) %}
+        <li><a href="/jobs?category={{ name|urlencode }}"><span>{{ name }}</span><span class="n">{{ by_category[name] }}</span></a></li>
+        {% endfor %}
+      </ul>
+      <div class="panel" style="margin-top:28px">
+        <h3>Hear about new jobs first</h3>
+        <p>Get an email when jobs you'd want are posted. No account needed.</p>
+        <a class="btn" href="/alerts">Set up a job alert</a>
+      </div>
+      <div class="panel plain">
+        <h3>Want jobs picked for you?</h3>
+        <p>Make a free account, tell us what you're good at, and we'll rank every local opening by how well it fits you.</p>
+        <a class="btn secondary" href="/signup">Get personal matches</a>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}

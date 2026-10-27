@@ -1,0 +1,5 @@
+{% extends "email/_layout.html" %}{% block body %}
+<p>Good news, {{ user.name.split(' ')[0] }} — your account is approved.</p>
+<p>Tell us what kind of work you want and what you're good at, and we'll rank every local opening by how well it fits you.</p>
+{% with label='Set up my profile' %}{% include "email/_button.html" %}{% endwith %}
+{% endblock %}

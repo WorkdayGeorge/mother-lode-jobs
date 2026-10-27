@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Your profile — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head"><h1>Your profile</h1></div>
+  {% include "account/_tabs.html" %}
+  <div class="split">
+    <form method="post" action="/me/profile">
+      {{ csrf_field(csrf) }}
+      <h2>What you're looking for</h2>
+      <div class="field">
+        <label for="target_roles">Kinds of jobs you want <span class="hint">One per line, e.g. "office assistant", "bookkeeper", "warehouse"</span></label>
+        <textarea id="target_roles" name="target_roles" rows="4">{{ profile.target_roles|join('\n') }}</textarea>
+      </div>
+      <div class="field">
+        <label for="skills">Your skills <span class="hint">One per line: tools, licenses, certificates, things you're good at. e.g. "QuickBooks", "CDL Class B", "customer service"</span></label>
+        <textarea id="skills" name="skills" rows="6">{{ profile.skills|join('\n') }}</textarea>
+      </div>
+      <div class="field">
+        <label for="experience_summary">Your experience in a few sentences <span class="hint">Optional. Used for detailed reviews.</span></label>
+        <textarea id="experience_summary" name="experience_summary" rows="4">{{ profile.experience_summary or '' }}</textarea>
+      </div>
+
+      <h2>Where you can work</h2>
+      <fieldset>
+        <legend>Whole counties</legend>
+        <div class="checks">
+          {% for c in counties %}<label><input type="checkbox" name="counties" value="{{ c }}" {% if c in profile.counties %}checked{% endif %}> {{ c }}</label>{% endfor %}
+          <label><input type="checkbox" name="include_remote" value="1" {% if profile.include_remote %}checked{% endif %}> Remote jobs</label>
+        </div>
+      </fieldset>
+      <details class="field" {% if profile.towns %}open{% endif %}>
+        <summary style="cursor:pointer;font-weight:600">Or only certain towns</summary>
+        <div class="checks" style="margin-top:8px">
+          {% for t in towns %}<label><input type="checkbox" name="towns" value="{{ t }}" {% if t in profile.towns %}checked{% endif %}> {{ t }}</label>{% endfor %}
+        </div>
+      </details>
+
+      <h2>Narrow it down <span class="hint" style="display:inline">optional</span></h2>
+      <fieldset>
+        <legend>Only these kinds of work <span class="hint">Leave all unchecked to consider everything.</span></legend>
+        <div class="checks">
+          {% for name in CATEGORY_NAMES %}<label><input type="checkbox" name="categories" value="{{ name }}" {% if name in profile.categories %}checked{% endif %}> {{ name }}</label>{% endfor %}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Hours</legend>
+        <div class="checks">
+          {% for t in EMPLOYMENT_TYPES %}<label><input type="checkbox" name="employment_types" value="{{ t }}" {% if t in profile.employment_types %}checked{% endif %}> {{ t }}</label>{% endfor %}
+        </div>
+      </fieldset>
+      <div class="field-row">
+        <div class="field"><label for="min_hourly_pay">Lowest pay you'd take <span class="hint">Dollars per hour. Jobs that list less are skipped.</span></label>
+          <input id="min_hourly_pay" type="number" step="0.5" min="0" name="min_hourly_pay" value="{{ profile.min_hourly_pay or '' }}"></div>
+        <div class="field"><label for="must_avoid">Skip jobs with these words in the title <span class="hint">e.g. "night", "commission"</span></label>
+          <input id="must_avoid" type="text" name="must_avoid" value="{{ profile.must_avoid|join(', ') }}"></div>
+      </div>
+
+      <h2>Email</h2>
+      <div class="field-row">
+        <div class="field"><label for="alert_frequency">Send me new matches</label>
+          <select id="alert_frequency" name="alert_frequency">
+            {% for value, label in [('daily','Every morning'),('weekly','Once a week'),('off','Never')] %}<option value="{{ value }}" {% if profile.alert_frequency == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+          </select></div>
+        <div class="field"><label for="alert_min_score">Only matches scoring at least</label>
+          <select id="alert_min_score" name="alert_min_score">
+            {% for value in [40, 50, 60, 70, 80] %}<option value="{{ value }}" {% if profile.alert_min_score == value %}selected{% endif %}>{{ value }} out of 100</option>{% endfor %}
+          </select></div>
+      </div>
+      <button class="btn" type="submit">Save and find my matches</button>
+    </form>
+
+    <aside id="resume">
+      <div class="aside-box">
+        <h2>Your resume</h2>
+        {% if profile.resume_text %}
+          <p><strong>{{ profile.resume_filename }}</strong><br><span class="muted">Uploaded {{ profile.resume_uploaded_at|ago }}</span></p>
+          <details><summary style="cursor:pointer">See the text we read</summary><pre class="code">{{ profile.resume_text[:3000] }}{% if profile.resume_text|length > 3000 %}…{% endif %}</pre></details>
+          <form method="post" action="/me/resume/delete" style="margin-top:10px">{{ csrf_field(csrf) }}<button class="btn quiet small" type="submit" data-confirm="Remove your resume?">Remove resume</button></form>
+        {% else %}
+          <p>Optional, but it makes your matches much better. We read the text and throw the file away.</p>
+        {% endif %}
+        <form method="post" action="/me/resume" enctype="multipart/form-data">
+          {{ csrf_field(csrf) }}
+          <label for="file">{{ 'Replace with a new file' if profile.resume_text else 'Upload a resume' }} <span class="hint">PDF, Word or text, up to 5 MB</span></label>
+          <input id="file" type="file" name="file" accept=".pdf,.docx,.txt" required>
+          <div class="actions"><button class="btn secondary small" type="submit">Upload</button></div>
+        </form>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}

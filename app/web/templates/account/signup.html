@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field, honeypot %}
+{% block title %}Create an account — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="split section">
+    <div class="form-card">
+      <h1>Get jobs picked for you</h1>
+      {% if mode == 'approval' %}
+      <p class="notice">We're opening accounts gradually. Sign up now and we'll email you as soon as yours is approved. You can browse and set up job alerts in the meantime.</p>
+      {% endif %}
+      {% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+      <form method="post" action="/signup">
+        {{ csrf_field(csrf) }}{{ honeypot() }}
+        <div class="field"><label for="name">Your name</label><input id="name" type="text" name="name" value="{{ form.name if form else '' }}" required autocomplete="name"></div>
+        <div class="field"><label for="email">Email</label><input id="email" type="email" name="email" value="{{ form.email if form else '' }}" required autocomplete="email"></div>
+        <div class="field"><label for="password">Password <span class="hint">At least 10 characters. A short sentence works well.</span></label><input id="password" type="password" name="password" required minlength="10" autocomplete="new-password"></div>
+        {% if mode == 'approval' %}
+        <div class="field"><label for="note">What kind of work are you looking for? <span class="hint">Optional. Helps us approve you faster.</span></label><textarea id="note" name="note" rows="3">{{ form.note if form else '' }}</textarea></div>
+        {% endif %}
+        <button class="btn" type="submit">Create my account</button>
+      </form>
+      <p style="margin-top:18px">Already have an account? <a href="/login">Sign in</a></p>
+    </div>
+    <aside>
+      <h2>What you get</h2>
+      <ol class="steps">
+        <li>Tell us what kind of work you want, where, and what you're good at. Upload a resume if you have one.</li>
+        <li>We score every local opening against your profile and put the best fits first.</li>
+        <li>Get an email when a strong match is posted, and keep track of where you've applied.</li>
+      </ol>
+      <p class="muted">Free. We never share your information with employers. You can delete your account any time.</p>
+    </aside>
+  </div>
+</div>
+{% endblock %}

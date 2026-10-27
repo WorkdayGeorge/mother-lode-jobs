@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% from "_macros.html" import job_row, csrf_field, ridge %}
+{% block ridge %}{% endblock %}
+{% block title %}{{ job.title }} — {{ job.employer }}{% if job.town %}, {{ job.town }}{% endif %} | {{ settings.site_name }}{% endblock %}
+{% block description %}{{ description_meta }}{% endblock %}
+{% block head %}
+<link rel="canonical" href="{{ canonical }}">
+{% if not job.is_open %}<meta name="robots" content="noindex">{% endif %}
+{% if json_ld %}<script type="application/ld+json">{{ json_ld|safe }}</script>{% endif %}
+{% endblock %}
+{% block content %}
+<section class="job-head">
+  <div class="wrap">
+    <p style="margin:0 0 10px"><a href="/jobs">All jobs</a>{% if job.town %} / <a href="/jobs?town={{ job.town|slug }}">{{ job.town }}</a>{% endif %}</p>
+    {% if not job.is_open %}<p class="notice">This job is no longer listed by the employer. It may have been filled. <a href="/jobs?employer={{ job.employer_slug }}">See {{ job.employer }}'s current jobs</a>.</p>{% endif %}
+    <h1>{{ job.title }}</h1>
+    <div class="employer"><a href="/jobs?employer={{ job.employer_slug }}">{{ job.employer }}</a></div>
+    <ul class="facts">
+      <li><span class="k">Where</span><span class="v">{% if job.is_remote %}Remote ({{ job.location }}){% else %}{{ job.town or job.location or job.county }}{% endif %}</span></li>
+      {% if job.salary_text %}<li><span class="k">Pay</span><span class="v">{{ job.salary_text }}</span></li>{% endif %}
+      {% if job.employment_type %}<li><span class="k">Hours</span><span class="v">{{ job.employment_type }}</span></li>{% endif %}
+      <li><span class="k">Listed</span><span class="v">{{ job.listed_on|date }}</span></li>
+      {% if job.closes_on %}<li><span class="k">Apply by</span><span class="v">{{ job.closes_on|date }}</span></li>{% endif %}
+    </ul>
+    {% if job.is_open %}
+    <div class="actions" style="margin-top:0">
+      <a class="btn gold" href="{{ job.apply_url }}" rel="noopener" target="_blank">Apply on {{ job.employer }}'s site</a>
+      {% if user and user.is_active %}
+        <form class="inline" method="post" action="/jobs/{{ job.id }}/track">{{ csrf_field(csrf) }}
+          {% if tracked %}
+            <input type="hidden" name="status" value="{{ 'applied' if tracked.status == 'saved' else 'remove' }}">
+            <button class="btn secondary" type="submit">{{ 'I applied' if tracked.status == 'saved' else 'Remove from my list' }}</button>
+          {% else %}
+            <input type="hidden" name="status" value="saved">
+            <button class="btn secondary" type="submit">Save job</button>
+          {% endif %}
+        </form>
+      {% elif not user %}
+        <a class="btn secondary" href="/login?next=/jobs/{{ job.id }}/{{ job.slug }}">Save job</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+<div class="band-ridge">{{ ridge() }}</div>
+
+<div class="wrap job-body">
+  <article>
+    <h2>About the job</h2>
+    {% if job.description %}
+    <div class="description">{{ job.description }}</div>
+    {% else %}
+    <p>The employer didn't share a description with us. The full posting is on their site.</p>
+    {% endif %}
+    <p class="source-note">
+      We copied this listing from {{ job.employer }}'s job page so you can find it here. Always check the employer's posting for the latest details before you apply.
+      {% if job.attribution %}{{ job.attribution }}.{% endif %}
+    </p>
+  </article>
+
+  <aside>
+    <div class="aside-box" id="fit">
+      <h2>How well do you fit?</h2>
+      {% if not user %}
+        <p>Make a free account and we'll compare each job with your skills and experience.</p>
+        <a class="btn secondary small" href="/signup">Get personal matches</a>
+      {% elif not user.is_active %}
+        <p>We'll show your fit here once your account is approved.</p>
+      {% elif match %}
+        <div class="fit-score"><span class="num">{{ match.score }}</span><span class="muted">out of 100</span></div>
+        <div class="meter" aria-hidden="true"><span style="width: {{ match.score }}%"></span></div>
+        {% if match.summary %}<p>{{ match.summary }}</p>{% endif %}
+        {% if match.strengths %}<strong>What lines up</strong><ul class="small-list">{% for s in match.strengths %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
+        {% if match.gaps %}<strong>Worth knowing</strong><ul class="small-list">{% for s in match.gaps %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
+        {% if match.method == 'quick' and settings.ai_enabled and job.is_open %}
+        <form method="post" action="/jobs/{{ job.id }}/review">{{ csrf_field(csrf) }}<button class="btn secondary small" type="submit">Get a detailed review</button></form>
+        {% endif %}
+      {% elif user.profile and user.profile.is_complete and job.is_open %}
+        <p>This job is outside the places or kinds of work in your profile.</p>
+        {% if settings.ai_enabled %}
+        <form method="post" action="/jobs/{{ job.id }}/review">{{ csrf_field(csrf) }}<button class="btn secondary small" type="submit">Check my fit anyway</button></form>
+        {% endif %}
+      {% else %}
+        <p>Finish your profile and we'll score this job for you.</p>
+        <a class="btn secondary small" href="/me/profile">Finish profile</a>
+      {% endif %}
+    </div>
+    {% if more_here %}
+    <div class="aside-box">
+      <h2>More at {{ job.employer }}</h2>
+      <ul class="small-list" style="padding-left:16px">
+        {% for other in more_here %}<li><a href="/jobs/{{ other.id }}/{{ other.slug }}">{{ other.title }}</a></li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}

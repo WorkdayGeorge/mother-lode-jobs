@@ -1,0 +1,8 @@
+{% extends "email/_layout.html" %}{% block body %}
+<p>New jobs matching your alert{% if sub.keywords %} for “{{ sub.keywords }}”{% endif %}:</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0">{% for job in jobs %}{% with score=None, why=None %}{% include "email/_job.html" %}{% endwith %}{% endfor %}</table>
+{% if more %}<p>…and {{ more }} more on the site.</p>{% endif %}
+{% with link=base_url ~ '/jobs', label='See all jobs' %}{% include "email/_button.html" %}{% endwith %}
+<p style="font-size:14px">Want jobs ranked for you? <a href="{{ base_url }}/signup" style="color:#1d5c7c">Make a free account</a>.</p>
+{% endblock %}
+{% block footer %}You get this because you asked for {{ sub.frequency }} job alerts. <a href="{{ base_url }}/alerts/unsubscribe/{{ sub.token }}" style="color:#1d5c7c">Unsubscribe</a>{% endblock %}

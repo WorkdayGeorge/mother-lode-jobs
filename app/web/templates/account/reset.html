@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Choose a new password — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head form-card">
+    <h1>Choose a new password</h1>
+    {% if error %}<div class="flash error" role="alert">{{ error }}</div>{% endif %}
+    <form method="post" action="/reset/{{ token }}">
+      {{ csrf_field(csrf) }}
+      <div class="field"><label for="password">New password <span class="hint">At least 10 characters.</span></label><input id="password" type="password" name="password" required minlength="10" autocomplete="new-password"></div>
+      <button class="btn" type="submit">Save new password</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

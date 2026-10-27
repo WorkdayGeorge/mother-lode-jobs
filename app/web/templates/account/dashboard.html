@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Your matches — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head"><h1>Jobs for {{ user.name.split(' ')[0] }}</h1></div>
+  {% include "account/_tabs.html" %}
+
+  {% if not profile or not profile.is_complete %}
+  <div class="panel">
+    <h2>Let's set up your matches</h2>
+    <ol class="steps">
+      <li class="{{ 'done' if profile and (profile.target_roles or profile.skills or profile.resume_text) }}">Tell us the kinds of jobs you want and what you're good at</li>
+      <li class="{{ 'done' if profile and (profile.counties or profile.towns or profile.include_remote) }}">Pick the places you can work</li>
+      <li>We rank every open job by how well it fits you</li>
+    </ol>
+    <a class="btn" href="/me/profile">Set up my profile</a>
+  </div>
+  {% else %}
+  <div class="result-tools">
+    <p class="muted" style="margin:0">
+      {% if show == 'good' %}Your best fits among open jobs, highest first.{% else %}Every open job that fits your places and filters.{% endif %}
+      {% if ai_enabled %}{{ ai_left }} detailed reviews left today.{% endif %}
+    </p>
+    <div class="actions" style="margin:0">
+      {% if show == 'good' %}<a class="btn quiet small" href="/me?show=all">Show all</a>{% else %}<a class="btn quiet small" href="/me">Best fits only</a>{% endif %}
+      <form class="inline" method="post" action="/me/rescore">{{ csrf_field(csrf) }}<button class="btn secondary small" type="submit">Check for new jobs</button></form>
+    </div>
+  </div>
+  {% if matches %}
+  <div style="margin-top:10px; border-top:1px solid var(--line)">
+    {% for m in matches %}
+    <div class="match-row">
+      <div>
+        <h3 class="job-title"><a href="/jobs/{{ m.job.id }}/{{ m.job.slug }}#fit">{{ m.job.title }}</a></h3>
+        <div class="job-meta">
+          <span class="employer">{{ m.job.employer }}</span>
+          <span>{% if m.job.is_remote %}Remote{% else %}{{ m.job.town or m.job.county }}{% endif %}</span>
+          {% if m.job.salary_text %}<span class="pay">{{ m.job.salary_text }}</span>{% endif %}
+          <span>{{ m.job.listed_on|ago }}</span>
+          {% if m.job.id in tracked_ids %}<span class="tag">Saved</span>{% endif %}
+        </div>
+        {% if m.summary %}<div class="match-why">{{ m.summary }}{% if m.method == 'ai' %} <span class="tag">Detailed review</span>{% endif %}</div>{% endif %}
+      </div>
+      <div style="text-align:right">
+        <div class="match-score" aria-label="Fit score {{ m.score }} out of 100">{{ m.score }}</div>
+        <form method="post" action="/matches/{{ m.id }}/dismiss">{{ csrf_field(csrf) }}<button class="btn quiet small" type="submit">Not for me</button></form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="panel" style="margin-top:16px">
+    <h2>No strong matches yet</h2>
+    <p>New jobs come in every day. Try <a href="/me?show=all">showing all jobs that fit your filters</a>, or widen your places and kinds of work in <a href="/me/profile">your profile</a>.</p>
+  </div>
+  {% endif %}
+  {% endif %}
+  <form method="post" action="/logout" style="margin-top:34px">{{ csrf_field(csrf) }}<button class="btn quiet" type="submit">Sign out</button></form>
+</div>
+{% endblock %}

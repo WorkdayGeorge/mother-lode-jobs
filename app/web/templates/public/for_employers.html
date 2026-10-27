@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field, honeypot %}
+{% block title %}Add your jobs — {{ settings.site_name }}{% endblock %}
+{% block description %}Hiring in Calaveras, Amador or Tuolumne county? Get your openings in front of local job seekers for free.{% endblock %}
+{% block content %}
+{% set kind = request.query_params.get('kind', 'careers_page') %}
+<div class="wrap narrow">
+  <div class="page-head">
+    <h1>Add your jobs, free</h1>
+    <p>If you hire in Calaveras, Amador or Tuolumne county, we'll list your openings where local people are looking. Applicants always apply directly with you.</p>
+  </div>
+  <div class="tabs" role="tablist">
+    <a href="/for-employers?kind=careers_page" {% if kind != 'single_job' %}aria-current="page"{% endif %}>I have a careers page</a>
+    <a href="/for-employers?kind=single_job" {% if kind == 'single_job' %}aria-current="page"{% endif %}>I have one opening</a>
+  </div>
+  <form method="post" action="/for-employers" class="panel plain">
+    {{ csrf_field(csrf) }}{{ honeypot() }}
+    <input type="hidden" name="kind" value="{{ kind }}">
+    {% if kind == 'single_job' %}
+    <p>We'll review it and post it within a couple of days. It comes down on the closing date.</p>
+    {% else %}
+    <p>Send us the link to the page where you list jobs. We'll check it every 15 minutes, so new openings show up here on their own and come down when you remove them.</p>
+    {% endif %}
+    <div class="field-row">
+      <div class="field"><label for="employer">Business name</label><input id="employer" type="text" name="employer" required></div>
+      <div class="field"><label for="contact_name">Your name</label><input id="contact_name" type="text" name="contact_name"></div>
+    </div>
+    <div class="field"><label for="contact_email">Email <span class="hint">So we can tell you when your jobs are up. Not shown publicly.</span></label><input id="contact_email" type="email" name="contact_email" required></div>
+    {% if kind == 'single_job' %}
+    <div class="field"><label for="job_title">Job title</label><input id="job_title" type="text" name="job_title" required></div>
+    <div class="field-row">
+      <div class="field"><label for="town">Town</label>
+        <select id="town" name="town" required><option value="">Choose a town</option>{% for t in towns %}<option>{{ t }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="pay">Pay <span class="hint">e.g. $20–$24 per hour</span></label><input id="pay" type="text" name="pay"></div>
+    </div>
+    <div class="field"><label for="description">Description <span class="hint">What the job involves, hours, and how to apply.</span></label><textarea id="description" name="description" rows="8" required></textarea></div>
+    <div class="field-row">
+      <div class="field"><label for="url">Where to apply <span class="hint">A link, or an email address</span></label><input id="url" type="text" name="url"></div>
+      <div class="field"><label for="closes_on">Closing date</label><input id="closes_on" type="date" name="closes_on"></div>
+    </div>
+    {% else %}
+    <div class="field"><label for="url">Careers page link</label><input id="url" type="url" name="url" placeholder="https://" required></div>
+    <div class="field"><label for="description">Anything we should know? <span class="hint">Optional</span></label><textarea id="description" name="description" rows="3"></textarea></div>
+    {% endif %}
+    <button class="btn" type="submit">{{ 'Send my job' if kind == 'single_job' else 'Send my careers page' }}</button>
+  </form>
+</div>
+{% endblock %}

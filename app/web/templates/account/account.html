@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Account — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head"><h1>Account</h1></div>
+  {% include "account/_tabs.html" %}
+  <div class="split">
+    <div>
+      <p>Signed in as <strong>{{ user.email }}</strong>.</p>
+      <form class="panel plain form-card" method="post" action="/me/account/password">
+        {{ csrf_field(csrf) }}
+        <h2>Change password</h2>
+        <div class="field"><label for="current">Current password</label><input id="current" type="password" name="current" required autocomplete="current-password"></div>
+        <div class="field"><label for="new">New password <span class="hint">At least 10 characters</span></label><input id="new" type="password" name="new" required minlength="10" autocomplete="new-password"></div>
+        <button class="btn secondary" type="submit">Change password</button>
+      </form>
+      <form method="post" action="/logout">{{ csrf_field(csrf) }}<button class="btn quiet" type="submit">Sign out</button></form>
+    </div>
+    <form class="panel plain" method="post" action="/me/account/delete">
+      {{ csrf_field(csrf) }}
+      <h2>Delete my account</h2>
+      <p>This removes your profile, resume text, matches and saved jobs straight away. It can't be undone.</p>
+      <div class="field"><label for="confirm">Type DELETE to confirm</label><input id="confirm" type="text" name="confirm" autocomplete="off"></div>
+      <button class="btn danger" type="submit">Delete my account</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

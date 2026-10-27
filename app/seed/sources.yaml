@@ -1,0 +1,272 @@
+# Starting list of job sources, carried over from calaveras_job_agent.
+#
+# Loaded with:  python -m app.cli seed-sources
+# Seeding only ADDS sources whose key isn't in the database yet, so it never
+# overwrites changes made in Admin → Sources. After the first load, manage
+# sources in Admin instead of editing this file.
+#
+# kind: government | employer | aggregator | remote
+
+# ---- Local government -------------------------------------------------------
+- key: calaveras_county
+  name: Calaveras County
+  kind: government
+  adapter: neogov
+  config: {agency: calaverascounty}
+  careers_url: https://www.governmentjobs.com/careers/calaverascounty
+  county: Calaveras County
+
+- key: amador_county
+  name: Amador County
+  kind: government
+  adapter: neogov
+  config: {agency: amadorgov}
+  careers_url: https://www.governmentjobs.com/careers/amadorgov
+  county: Amador County
+
+- key: tuolumne_county
+  name: Tuolumne County
+  kind: government
+  adapter: neogov
+  config: {agency: tuolumnecounty}
+  careers_url: https://www.governmentjobs.com/careers/tuolumnecounty
+  county: Tuolumne County
+
+- key: calaveras_court
+  name: Superior Court of California, County of Calaveras
+  kind: government
+  adapter: neogov
+  config: {agency: calaverascourts}
+  careers_url: https://www.governmentjobs.com/careers/calaverascourts
+  county: Calaveras County
+
+- key: amador_water
+  name: Amador Water Agency
+  kind: government
+  adapter: neogov
+  config: {agency: amadorwater}
+  careers_url: https://amadorwater.gov/careers/current-job-openings/
+  county: Amador County
+
+- key: tuolumne_utilities
+  name: Tuolumne Utilities District
+  kind: government
+  adapter: neogov
+  config: {agency: tudwater}
+  careers_url: https://tudwater.com/careers/job-openings/
+  county: Tuolumne County
+
+- key: ccwd
+  name: Calaveras County Water District
+  kind: government
+  adapter: custom
+  config: {scraper: ccwd}
+  careers_url: https://www.ccwd.org/job-opportunities
+  county: Calaveras County
+
+- key: angels_camp_city
+  name: City of Angels Camp
+  kind: government
+  adapter: custom
+  config: {scraper: angels_camp_city}
+  careers_url: https://angelscamp.gov/city-hall/human-resources-2/
+  county: Calaveras County
+
+# ---- Schools ----------------------------------------------------------------
+- key: edjoin_calaveras
+  name: Calaveras County schools (EdJoin)
+  kind: government
+  adapter: edjoin
+  county: Calaveras County
+  default_category: Education & Childcare
+  careers_url: https://www.edjoin.org/calaverascoe
+  config:
+    districts:
+      - {id: 71, name: Vallecito Union School District, portal: "https://www.edjoin.org/vallecito"}
+      - {id: 72, name: Mark Twain Union Elementary School District, portal: "https://www.edjoin.org/mtwain"}
+      - {id: 74, name: Calaveras County Office of Education, portal: "https://www.edjoin.org/calaverascoe"}
+      - {id: 73, name: Calaveras Unified School District, portal: "https://www.edjoin.org/calaverasusd"}
+      - {id: 75, name: Bret Harte Union High School District, portal: "https://www.edjoin.org/bhuhsd"}
+
+- key: edjoin_amador
+  name: Amador County schools (EdJoin)
+  kind: government
+  adapter: edjoin
+  county: Amador County
+  default_category: Education & Childcare
+  careers_url: https://www.edjoin.org/amadorcoe
+  config:
+    districts:
+      - {id: 54, name: Amador County Office of Education, portal: "https://www.edjoin.org/amadorcoe"}
+      - {id: 53, name: Amador County Unified School District, portal: "https://www.edjoin.org/acusd"}
+
+- key: edjoin_tuolumne
+  name: Tuolumne County schools (EdJoin)
+  kind: government
+  adapter: edjoin
+  county: Tuolumne County
+  default_category: Education & Childcare
+  careers_url: https://www.edjoin.org/tcsos
+  config:
+    districts:
+      - {id: 1052, name: Columbia Union School District, portal: "https://www.edjoin.org/ColumbiaUnion"}
+      - {id: 1051, name: Curtis Creek School District, portal: "https://www.edjoin.org/CurtisCreek"}
+      - {id: 5063, name: Gold Rush Charter School, portal: "https://www.edjoin.org/Home/Jobs?districtID=5063"}
+      - {id: 1050, name: Jamestown School District, portal: "https://www.edjoin.org/jsd"}
+      - {id: 1056, name: Sonora Elementary School District, portal: "https://www.edjoin.org/SonoraElementary"}
+      - {id: 1045, name: Sonora Union High School District, portal: "https://www.edjoin.org/sonorahs"}
+      - {id: 1049, name: Soulsbyville School District, portal: "https://www.edjoin.org/soulsbyvilleschool"}
+      - {id: 1048, name: Summerville Elementary School District, portal: "https://www.edjoin.org/SummervilleElementary"}
+      - {id: 1046, name: Summerville Union High School, portal: "https://www.edjoin.org/summbears"}
+      - {id: 1055, name: Tuolumne County Superintendent of Schools, portal: "https://www.edjoin.org/tcsos"}
+      - {id: 1047, name: Twain Harte School District, portal: "https://www.edjoin.org/twainharte"}
+
+# ---- State and federal ------------------------------------------------------
+- key: calcareers
+  name: State of California (CalCareers)
+  kind: government
+  adapter: custom
+  config: {scraper: calcareers}
+  careers_url: https://calcareers.ca.gov/
+
+- key: usajobs
+  name: Federal jobs (USAJOBS)
+  kind: government
+  adapter: custom
+  active: false   # turn on in Admin once USAJOBS_API_KEY / USAJOBS_USER_AGENT are set
+  # organization blank = every agency; AG11 = U.S. Forest Service only
+  config: {scraper: usajobs, organization: "", location: "San Andreas, California", radius_miles: 50}
+  careers_url: https://www.usajobs.gov/
+
+# ---- Healthcare -------------------------------------------------------------
+- key: commonspirit
+  name: Mark Twain Medical Center (CommonSpirit)
+  kind: employer
+  adapter: custom
+  config: {scraper: commonspirit}
+  careers_url: https://www.commonspirit.careers/
+  county: Calaveras County
+  default_category: Healthcare
+
+- key: adventist_health
+  name: Adventist Health Sonora
+  kind: employer
+  adapter: custom
+  config: {scraper: adventist_health}
+  careers_url: https://careers.adventisthealth.org/
+  county: Tuolumne County
+  default_category: Healthcare
+
+- key: mact_health
+  name: MACT Health Board
+  kind: employer
+  adapter: adp
+  config: {cid: 42ad6968-0b79-403e-b041-4c894400916b, local_terms: [angels camp, san andreas, valley springs, calaveras], default_location: "Calaveras County, CA"}
+  careers_url: https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=42ad6968-0b79-403e-b041-4c894400916b&ccId=19000101_000001
+  county: Calaveras County
+  default_category: Healthcare
+
+- key: golden_san_andreas
+  name: Golden San Andreas Care Center
+  kind: employer
+  adapter: apploi
+  config: {url: "https://apploi.click/golden-san-andreas-care-center-career-page"}
+  careers_url: https://apploi.click/golden-san-andreas-care-center-career-page
+  county: Calaveras County
+  default_category: Healthcare
+
+# ---- Local employers --------------------------------------------------------
+- key: bear_valley
+  name: Bear Valley Mountain Resort
+  kind: employer
+  adapter: adp
+  config: {cid: a9f73c21-b1eb-41af-8b11-4b980fade755, local_terms: [bear valley, calaveras], default_location: "Bear Valley, CA"}
+  careers_url: https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?cid=a9f73c21-b1eb-41af-8b11-4b980fade755&ccId=19000101_000001
+  default_category: Hospitality, Food & Recreation
+
+- key: insight_manufacturing
+  name: Insight Manufacturing
+  kind: employer
+  adapter: adp
+  config: {cid: 824005bc-0b5e-446f-847a-33863ec245d7, local_terms: [murphys, calaveras], default_location: "Murphys, CA"}
+  careers_url: https://workforcenow.adp.com/mascsr/default/mdf/recruitment/recruitment.html?ccId=19000101_000001&cid=824005bc-0b5e-446f-847a-33863ec245d7&lang=en_US&type=MP
+  county: Calaveras County
+  default_category: Warehouse, Driving & Manufacturing
+
+- key: resource_connection
+  name: The Resource Connection
+  kind: employer
+  adapter: applicantpro
+  config: {subdomain: trcac, board_id: "7133"}
+  careers_url: https://trcac.applicantpro.com/jobs/
+  default_category: Social & Community Services
+
+- key: greenhorn_creek
+  name: Greenhorn Creek Resort
+  kind: employer
+  adapter: custom
+  config: {scraper: greenhorn_creek}
+  careers_url: https://harri.com/Yad-BmDiBaycxfQT
+  county: Calaveras County
+  default_category: Hospitality, Food & Recreation
+
+- key: worldmark_angels_camp
+  name: WorldMark Angels Camp
+  kind: employer
+  adapter: custom
+  config: {scraper: worldmark_angels_camp}
+  careers_url: https://careers.travelandleisureco.com/
+  county: Calaveras County
+  default_category: Hospitality, Food & Recreation
+
+- key: calaveras_lumber
+  name: Calaveras & Sonora Lumber
+  kind: employer
+  adapter: custom
+  config: {scraper: calaveras_lumber}
+  careers_url: https://www.paycomonline.net/v4/ats/web.php/portal/11C30BF2C8590F32D1D813EA44A4CC1A/career-page
+  default_category: Warehouse, Driving & Manufacturing
+
+- key: ironstone
+  name: Ironstone Vineyards
+  kind: employer
+  adapter: custom
+  config: {scraper: ironstone}
+  careers_url: https://ironstonevineyards.com/employment/
+  county: Calaveras County
+  default_category: Hospitality, Food & Recreation
+
+- key: pge
+  name: PG&E (foothill locations)
+  kind: employer
+  adapter: custom
+  config: {scraper: pge}
+  careers_url: https://jobs.pge.com/
+
+- key: chips_forestry
+  name: CHIPS Forestry
+  kind: employer
+  adapter: page_watch
+  config: {url: "https://www.chipsforestry.org/"}
+  careers_url: https://www.chipsforestry.org/
+  county: Calaveras County
+  default_category: Agriculture, Forestry & Wine
+  notes: Offers a general application rather than listed openings; watched for changes.
+
+# ---- Aggregators and remote -------------------------------------------------
+- key: adzuna
+  name: Adzuna
+  kind: aggregator
+  adapter: adzuna
+  active: false   # turn on in Admin once ADZUNA_APP_ID / ADZUNA_APP_KEY are set
+  config:
+    where: ["Calaveras County, California", "Amador County, California", "Tuolumne County, California"]
+    max_pages: 4
+  careers_url: https://www.adzuna.com/
+
+- key: remotive
+  name: Remote jobs (Remotive)
+  kind: remote
+  adapter: custom
+  config: {scraper: remotive, max_jobs: 300}
+  careers_url: https://remotive.com/remote-jobs

@@ -1,0 +1,32 @@
+{% macro job_row(job, saved=False) -%}
+<li class="job">
+  <div>
+    <h3 class="job-title"><a href="/jobs/{{ job.id }}/{{ job.slug }}">{{ job.title }}</a></h3>
+    <div class="job-meta">
+      <span class="employer">{{ job.employer }}</span>
+      <span>{% if job.is_remote %}Remote{% else %}{{ job.town or (job.county or '') }}{% endif %}</span>
+      {% if job.employment_type %}<span>{{ job.employment_type }}</span>{% endif %}
+      {% if job.salary_text %}<span class="pay">{{ job.salary_text }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="job-side">
+    {% if job.listed_on and (job.listed_on|ago) in ('today', 'yesterday') %}<span class="tag new">New</span><br>{% endif %}
+    {% if saved %}<span class="tag">Saved</span><br>{% endif %}
+    {{ job.listed_on|ago }}
+  </div>
+</li>
+{%- endmacro %}
+
+{% macro csrf_field(csrf) -%}<input type="hidden" name="csrf_token" value="{{ csrf() }}">{%- endmacro %}
+
+{% macro honeypot() -%}
+<div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+{%- endmacro %}
+
+{% macro ridge() -%}
+<svg class="ridge" viewBox="0 0 1200 46" preserveAspectRatio="none" aria-hidden="true">
+    <path class="far" d="M0 30 C90 14 160 22 240 12 C330 2 400 20 480 16 C560 12 610 4 700 10 C800 16 860 6 950 12 C1040 18 1110 8 1200 14 L1200 46 L0 46 Z"/>
+    <path class="near" d="M0 36 C70 28 120 34 190 26 C260 18 330 32 410 28 C500 24 540 34 620 30 C700 26 770 20 850 28 C930 36 1010 24 1090 30 C1140 34 1170 30 1200 32 L1200 46 L0 46 Z"/>
+    <path class="front" d="M0 42 C120 36 220 44 340 40 C460 36 560 44 700 41 C840 38 960 45 1080 41 C1140 39 1170 41 1200 40 L1200 46 L0 46 Z"/>
+  </svg>
+{%- endmacro %}

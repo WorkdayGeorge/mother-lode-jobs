@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Your account — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head">
+    <h1>Hi {{ user.name.split(' ')[0] }}</h1>
+    {% if user.status == 'unverified' %}
+      <p>Check your email for a link to confirm your address. It's from {{ settings.site_name }} and works for 48 hours.</p>
+      <form method="post" action="/verify/resend">{{ csrf_field(csrf) }}<button class="btn secondary" type="submit">Send the link again</button></form>
+    {% else %}
+      <p>Thanks for signing up. Your account is waiting for approval — we're letting people in gradually while we test things. We'll email {{ user.email }} as soon as you're in.</p>
+    {% endif %}
+    <h2 style="margin-top:28px">In the meantime</h2>
+    <div class="actions"><a class="btn" href="/jobs">Browse jobs</a><a class="btn secondary" href="/alerts">Set up an email alert</a></div>
+    <form method="post" action="/logout" style="margin-top:28px">{{ csrf_field(csrf) }}<button class="btn quiet" type="submit">Sign out</button></form>
+  </div>
+</div>
+{% endblock %}

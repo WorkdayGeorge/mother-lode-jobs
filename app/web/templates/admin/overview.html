@@ -1,0 +1,49 @@
+{% extends "admin/_base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head section-head">
+    <h1>Overview</h1>
+    <form method="post" action="/admin/run">{{ csrf_field(csrf) }}<button class="btn" type="submit" {% if running %}disabled{% endif %}>{{ 'Checking now…' if running else 'Check all sources now' }}</button></form>
+  </div>
+  <div class="stat-row">
+    <a class="stat" href="/jobs"><span class="n">{{ stats.open_jobs }}</span><span class="l">open jobs</span></a>
+    <a class="stat" href="/admin/jobs"><span class="n">{{ stats.new_week }}</span><span class="l">new this week</span></a>
+    <a class="stat" href="/admin/users?status=pending"><span class="n">{{ stats.users_pending }}</span><span class="l">waiting for approval</span></a>
+    <a class="stat" href="/admin/users?status=active"><span class="n">{{ stats.users_active }}</span><span class="l">active accounts</span></a>
+    <div class="stat"><span class="n">{{ stats.subscribers }}</span><span class="l">email alert subscribers</span></div>
+    <a class="stat" href="/admin/submissions"><span class="n">{{ stats.submissions }}</span><span class="l">employer submissions</span></a>
+  </div>
+
+  {% set trouble = (health.get('failing', []) + health.get('warning', []) + health.get('changed', [])) %}
+  <h2>Sources that need a look</h2>
+  {% if trouble %}
+  <div class="table-wrap"><table>
+    <thead><tr><th>Source</th><th>Status</th><th>What happened</th></tr></thead>
+    <tbody>
+    {% for s in trouble %}
+      <tr>
+        <td><a href="/admin/sources/{{ s.id }}">{{ s.name }}</a></td>
+        <td><span class="health {{ s.health }}">{{ {'failing':'Failing','warning':'Check','changed':'Page changed'}[s.health] }}</span></td>
+        <td class="muted">
+          {% if s.health == 'changed' %}The watched page changed {{ s.page_changed_at|ago }}. Look for new openings and post them by hand.
+          {% elif s.last_error %}{{ s.last_error|truncate_words(160) }}
+          {% elif s.consecutive_empty %}Found no jobs in the last {{ s.consecutive_empty }} checks (usually finds up to {{ s.max_job_count }}).{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <p>{% if health.get('ok') %}All {{ health['ok']|length }} checked sources are working.{% endif %}
+  {% if health.get('new') %}{{ health['new']|length }} source{{ 's' if health['new']|length != 1 }} haven't been checked yet — press “Check all sources now”.{% endif %}
+  {% if not health.get('ok') and not health.get('new') %}No active sources yet. <a href="/admin/sources/new">Add one</a>.{% endif %}</p>
+  {% endif %}
+
+  {% if last_run %}
+  <h2 style="margin-top:28px">Last full check</h2>
+  <p>Started {{ last_run.started_at|ago }}{% if last_run.finished_at %}, finished.{% else %}, still running.{% endif %}
+  {% if last_run.summary %}{{ last_run.summary.get('ok', 0) }} sources read, {{ last_run.summary.get('failed', 0) }} failed, {{ last_run.summary.get('new_jobs', 0) }} new jobs, {{ last_run.summary.get('closed_jobs', 0) }} closed.{% endif %}</p>
+  {% endif %}
+</div>
+{% endblock %}

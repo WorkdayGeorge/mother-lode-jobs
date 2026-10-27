@@ -1,0 +1,28 @@
+{% extends "admin/_base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head"><h1>Employer submissions</h1></div>
+  <nav class="tabs">
+    {% for s, l in [('pending','To review'),('approved','Added'),('rejected','Rejected')] %}<a href="/admin/submissions?status={{ s }}" {% if status == s %}aria-current="page"{% endif %}>{{ l }}</a>{% endfor %}
+  </nav>
+  {% for sub in rows %}
+  <div class="panel plain">
+    <h3>{{ sub.employer }} <small class="muted">— {{ 'careers page' if sub.kind == 'careers_page' else 'one job' }}, {{ sub.created_at|ago }}</small></h3>
+    <p>{{ sub.contact_name or '' }} &lt;{{ sub.contact_email }}&gt;</p>
+    {% if sub.url %}<p><a href="{{ sub.url }}" target="_blank" rel="noopener">{{ sub.url }}</a></p>{% endif %}
+    {% if sub.job_title %}<p><strong>{{ sub.job_title }}</strong>{% if sub.town %}, {{ sub.town }}{% endif %}{% if sub.pay %} — {{ sub.pay }}{% endif %}{% if sub.closes_on %} — closes {{ sub.closes_on|date }}{% endif %}</p>{% endif %}
+    {% if sub.description %}<pre class="code">{{ sub.description }}</pre>{% endif %}
+    {% if sub.review_note %}<p class="muted">{{ sub.review_note }}</p>{% endif %}
+    {% if sub.status == 'pending' %}
+    <form method="post" action="/admin/submissions/{{ sub.id }}" class="actions">
+      {{ csrf_field(csrf) }}
+      {% if sub.kind == 'careers_page' %}<button class="btn small" name="action" value="add_source">Set up as a source</button>{% else %}<button class="btn small" name="action" value="post_job">Review and post</button>{% endif %}
+      <input type="text" name="note" placeholder="Reason (emailed to them if filled in)" style="max-width:340px;min-height:34px">
+      <button class="btn secondary small" name="action" value="reject">Reject</button>
+    </form>
+    {% endif %}
+  </div>
+  {% else %}<p>Nothing here.</p>{% endfor %}
+</div>
+{% endblock %}

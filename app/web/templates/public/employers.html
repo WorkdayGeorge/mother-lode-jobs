@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Local employers hiring — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head">
+    <h1>Employers</h1>
+    <p>Everyone with open jobs on the board right now, plus the job pages we check every 15 minutes.</p>
+  </div>
+  <div class="split">
+    <section>
+      <h2>Hiring now</h2>
+      {% if rows %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Employer</th><th>County</th><th class="num">Open jobs</th></tr></thead>
+          <tbody>
+            {% for name, slug, count, county in rows %}
+            <tr><td><a href="/jobs?employer={{ slug }}">{{ name }}</a></td><td>{{ county|county_short }}</td><td class="num">{{ count }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}<p>No employers have open jobs listed yet.</p>{% endif %}
+    </section>
+    <aside>
+      <h2>Job pages we check</h2>
+      <ul class="small-list">
+        {% for s in sources %}<li>{% if s.careers_url %}<a href="{{ s.careers_url }}" rel="noopener">{{ s.name }}</a>{% else %}{{ s.name }}{% endif %}</li>{% endfor %}
+      </ul>
+      <div class="panel">
+        <h3>Not listed?</h3>
+        <p>If your business hires in the Mother Lode, we'll add your jobs for free.</p>
+        <a class="btn" href="/for-employers">Add your jobs</a>
+      </div>
+    </aside>
+  </div>
+</div>
+{% endblock %}

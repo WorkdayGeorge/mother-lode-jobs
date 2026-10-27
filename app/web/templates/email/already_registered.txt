@@ -1,0 +1,4 @@
+Someone tried to sign up with this email, but you already have an account.
+
+Sign in: {{ base_url }}/login
+Forgot your password? {{ base_url }}/forgot

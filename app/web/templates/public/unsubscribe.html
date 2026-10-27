@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Unsubscribe — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head">
+    {% if sub.unsubscribed_at %}
+    <h1>You're already unsubscribed</h1>
+    <p>{{ sub.email }} won't get this alert.</p>
+    {% else %}
+    <h1>Stop this job alert?</h1>
+    <p>{{ sub.email }} will stop getting {{ sub.frequency }} emails{% if sub.keywords %} about “{{ sub.keywords }}”{% endif %}.</p>
+    <form method="post">{{ csrf_field(csrf) }}<button class="btn" type="submit">Unsubscribe</button></form>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

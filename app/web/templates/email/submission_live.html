@@ -1,0 +1,5 @@
+{% extends "email/_layout.html" %}{% block body %}
+<p>Your listing for {{ sub.employer }} is now on {{ site_name }}.</p>
+{% with label='See it on the board' %}{% include "email/_button.html" %}{% endwith %}
+<p style="font-size:14px">It comes down on its closing date. Reply to this email if anything needs changing.</p>
+{% endblock %}

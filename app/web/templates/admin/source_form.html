@@ -1,0 +1,106 @@
+{% extends "admin/_base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block content %}
+{% set is_new = source.id is none %}
+<div class="wrap">
+  <div class="page-head">
+    <p style="margin:0 0 6px"><a href="/admin/sources">All sources</a></p>
+    <h1>{{ 'Add a source' if is_new else source.name }}</h1>
+    {% if not is_new %}
+    <p><span class="health {{ source.health }}">{{ {'ok':'Working','warning':'Check','failing':'Failing','changed':'Page changed','new':'Not run yet','paused':'Paused'}[source.health] }}</span>
+      <span class="muted">{{ open_jobs }} open jobs listed. Last success {{ source.last_success_at|ago if source.last_success_at else 'never' }}.</span></p>
+    <div class="actions" style="margin-top:6px">
+      <form class="inline" method="post">{{ csrf_field(csrf) }}<input type="hidden" name="action" value="check"><button class="btn small" type="submit" {% if not source.active %}disabled{% endif %}>Check now</button></form>
+      <form class="inline" method="post">{{ csrf_field(csrf) }}<input type="hidden" name="action" value="toggle"><button class="btn secondary small" type="submit">{{ 'Pause' if source.active else 'Resume' }}</button></form>
+      {% if source.page_changed_at %}<form class="inline" method="post">{{ csrf_field(csrf) }}<input type="hidden" name="action" value="ack_change"><button class="btn secondary small" type="submit">I've reviewed the change</button></form>{% endif %}
+      {% if source.careers_url %}<a class="btn quiet small" href="{{ source.careers_url }}" target="_blank" rel="noopener">Open their careers page</a>{% endif %}
+    </div>
+    {% if source.last_error %}<div class="flash error">Last error: {{ source.last_error }}</div>{% endif %}
+    {% endif %}
+  </div>
+
+  {% if detection %}
+  <div class="{{ 'flash' if detection.confident else 'notice' }}">{{ detection.note }}</div>
+  {% endif %}
+
+  {% if preview %}
+  <div class="panel plain">
+    <h2>Preview</h2>
+    {% if not preview.ok %}
+      <div class="flash error">Couldn't read it: {{ preview.error }}</div>
+      <p>Check the settings below. If this site has no readable job list, switch to “Watch a page for changes”.</p>
+    {% elif source.adapter == 'page_watch' %}
+      <p>Read the page fine. You'll be flagged in Admin whenever it changes.</p>
+    {% else %}
+      <p>Found <strong>{{ preview.found }}</strong> jobs; <strong>{{ preview.kept_total }}</strong> are in the area{% if preview.dropped %} ({{ preview.dropped }} elsewhere will be skipped){% endif %}.</p>
+      {% for n in preview.notes %}<p class="muted">{{ n }}</p>{% endfor %}
+      {% if preview.kept %}
+      <div class="table-wrap"><table>
+        <thead><tr><th>Title</th><th>Employer</th><th>Where</th><th>Kind</th><th>Pay</th></tr></thead>
+        <tbody>{% for j in preview.kept %}<tr><td><a href="{{ j.apply_url }}" target="_blank" rel="noopener">{{ j.title }}</a></td><td>{{ j.employer }}</td><td>{{ j.town or j.county or ('Remote' if j.is_remote else '') }}</td><td>{{ j.category }}</td><td>{{ j.salary_text or '' }}</td></tr>{% endfor %}</tbody>
+      </table></div>
+      {% endif %}
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <form method="post" action="{{ '/admin/sources/new' if is_new else '/admin/sources/' ~ source.id }}" class="panel plain">
+    {{ csrf_field(csrf) }}
+    {% if submission_id %}<input type="hidden" name="submission_id" value="{{ submission_id }}">{% endif %}
+    <div class="field-row">
+      <div class="field"><label for="name">Name shown on jobs</label><input id="name" type="text" name="name" value="{{ source.name or '' }}" required></div>
+      <div class="field"><label for="careers_url">Careers page link <span class="hint">Shown on the Employers page</span></label><input id="careers_url" type="url" name="careers_url" value="{{ source.careers_url or '' }}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label for="kind">Type</label>
+        <select id="kind" name="kind">{% for k in kinds %}<option value="{{ k }}" {% if source.kind == k %}selected{% endif %}>{{ {'employer':'Local employer','government':'Government or schools','aggregator':'Job aggregator','remote':'Remote jobs'}[k] }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="county">County <span class="hint">Used when a job doesn't say where it is</span></label>
+        <select id="county" name="county"><option value="">Not tied to one county</option>{% for c in counties %}<option {% if source.county == c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+      <div class="field"><label for="default_category">Usual kind of work <span class="hint">A hint for sorting</span></label>
+        <select id="default_category" name="default_category"><option value="">Varies</option>{% for c in CATEGORY_NAMES %}<option {% if source.default_category == c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></div>
+    </div>
+
+    <div class="field"><label for="adapter">How to read it</label>
+      <select id="adapter" name="adapter">{% for key in selectable %}<option value="{{ key }}" {% if source.adapter == key %}selected{% endif %}>{{ adapters[key].label }}</option>{% endfor %}</select>
+    </div>
+    {% for key in selectable %}{% set cls = adapters[key] %}
+    <div data-adapter-fields="{{ key }}" {% if source.adapter != key %}hidden{% endif %}>
+      <p class="muted">{{ cls.description }}</p>
+      {% for spec in cls.config_fields %}
+      <div class="field">
+        <label for="cfg_{{ key }}_{{ spec.name }}">{{ spec.label }}{% if not spec.required %} <span class="hint" style="display:inline">optional</span>{% endif %}{% if spec.help %}<span class="hint">{{ spec.help }}</span>{% endif %}</label>
+        {% set value = cfg.get(spec.name, '') if source.adapter == key else '' %}
+        {% if spec.kind == 'choice' %}
+          <select id="cfg_{{ key }}_{{ spec.name }}" name="cfg_{{ spec.name }}">{% for name, info in scrapers.items() %}<option value="{{ name }}" {% if value == name %}selected{% endif %}>{{ info[2] }}</option>{% endfor %}</select>
+        {% elif spec.kind in ('list', 'districts') %}
+          <textarea id="cfg_{{ key }}_{{ spec.name }}" name="cfg_{{ spec.name }}" rows="5">{{ value }}</textarea>
+        {% else %}
+          <input id="cfg_{{ key }}_{{ spec.name }}" type="{{ 'number' if spec.kind == 'int' else 'text' }}" name="cfg_{{ spec.name }}" value="{{ value }}">
+        {% endif %}
+      </div>
+      {% endfor %}
+      <details class="field"><summary style="cursor:pointer" class="muted">Advanced settings (JSON)</summary>
+        <textarea name="cfg_extra_json" rows="2" style="font-family:monospace">{{ cfg.get('extra_json', '') if source.adapter == key else '' }}</textarea></details>
+    </div>
+    {% endfor %}
+
+    <div class="field"><label for="notes">Notes for admins</label><textarea id="notes" name="notes" rows="2">{{ source.notes or '' }}</textarea></div>
+    <div class="actions">
+      <button class="btn secondary" type="submit" name="action" value="preview">Preview jobs</button>
+      <button class="btn" type="submit" name="action" value="save">{{ 'Add source' if is_new else 'Save changes' }}</button>
+    </div>
+  </form>
+
+  {% if runs %}
+  <h2>Recent checks</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>When</th><th>Result</th><th class="num">Found</th><th class="num">In area</th><th class="num">New</th><th class="num">Closed</th></tr></thead>
+    <tbody>{% for r in runs %}
+      <tr><td>{{ r.started_at.strftime('%b %-d, %-I:%M %p') }} UTC</td>
+          <td>{% if r.ok %}<span class="health ok">OK</span>{% else %}<span class="health failing">Failed</span> <small class="muted">{{ r.error|truncate_words(120) }}</small>{% endif %}</td>
+          <td class="num">{{ r.jobs_found }}</td><td class="num">{{ r.jobs_kept }}</td><td class="num">{{ r.jobs_new }}</td><td class="num">{{ r.jobs_closed }}</td></tr>
+    {% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+</div>
+{% endblock %}

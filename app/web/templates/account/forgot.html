@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf_field %}
+{% block title %}Reset your password — {{ settings.site_name }}{% endblock %}
+{% block content %}
+<div class="wrap narrow">
+  <div class="page-head form-card">
+    <h1>Reset your password</h1>
+    <p>Enter the email you signed up with and we'll send you a link.</p>
+    <form method="post" action="/forgot">
+      {{ csrf_field(csrf) }}
+      <div class="field"><label for="email">Email</label><input id="email" type="email" name="email" required autocomplete="email"></div>
+      <button class="btn" type="submit">Send reset link</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
